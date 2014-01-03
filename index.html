@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Minidao : J2EE 持久层轻量级解决方案" />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Minidao</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/zhangdaiscott/MiniDao">View on GitHub</a>
+
+          <h1 id="project_title">Minidao</h1>
+          <h2 id="project_tagline">J2EE 持久层轻量级解决方案</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/zhangdaiscott/MiniDao/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/zhangdaiscott/MiniDao/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>
+<a name="minidao" class="anchor" href="#minidao"><span class="octicon octicon-link"></span></a>MiniDao</h1>
+
+<p>MiniDao简介及特征</p>
+
+<p>MiniDao是Jeecg自己的持久化解决方案，集成了Hibernate实体维护和Mybaits SQL分离的两大优势。 具有以下特征:</p>
+
+<ul>
+<li>1.O/R mapping不用设置xml，零配置便于维护</li>
+<li>2.不需要了解JDBC的知识</li>
+<li>3.SQL语句和java代码的分离</li>
+<li>4.可以自动生成SQL语句</li>
+<li>5.接口和实现分离，不用写持久层代码，用户只需写接口，以及某些接口方法对应的sql 它会通过AOP自动生成实现类</li>
+<li>6.支持自动事务处理和手动事务处理</li>
+<li>7.支持与hibernate轻量级无缝集成</li>
+<li>8.MiniDao整合了Hibernate+mybatis的两大优势，支持实体维护和SQL分离</li>
+<li>9.SQL支持脚本语言</li>
+</ul><p>※向下兼容Hibernate实体维护方式,实体的增删改查SQL自动生成</p>
+
+<h3>
+<a name="%E6%8E%A5%E5%8F%A3%E5%92%8Csql%E6%96%87%E4%BB%B6%E5%AF%B9%E5%BA%94%E7%9B%AE%E5%BD%95" class="anchor" href="#%E6%8E%A5%E5%8F%A3%E5%92%8Csql%E6%96%87%E4%BB%B6%E5%AF%B9%E5%BA%94%E7%9B%AE%E5%BD%95"><span class="octicon octicon-link"></span></a>接口和SQL文件对应目录</h3>
+
+<p><img src="http://www.jeecg.org/data/attachment/forum/201308/18/224051ey14ehqe000iegja.jpg" alt="github" title="minidao"></p>
+
+<h3>
+<a name="%E6%8E%A5%E5%8F%A3%E5%AE%9A%E4%B9%89employeedaojava" class="anchor" href="#%E6%8E%A5%E5%8F%A3%E5%AE%9A%E4%B9%89employeedaojava"><span class="octicon octicon-link"></span></a>接口定义[EmployeeDao.java]</h3>
+
+<pre><code>public interface EmployeeDao {
+@Arguments("employee")
+public List&lt;Map&gt; getAllEmployees(Employee employee);
+
+@Arguments("empno")
+Employee getEmployee(String empno);
+
+@Arguments({"empno","name"})
+Map getMap(String empno,String name);
+
+@Sql("SELECT count(*) FROM employee")
+Integer getCount();
+
+@Arguments("employee")
+int update(Employee employee);
+
+@Arguments("employee")
+void insert(Employee employee);
+}
+</code></pre>
+
+<h3>
+<a name="sql%E6%96%87%E4%BB%B6employeedao_getallemployeessql" class="anchor" href="#sql%E6%96%87%E4%BB%B6employeedao_getallemployeessql"><span class="octicon octicon-link"></span></a>SQL文件[EmployeeDao_getAllEmployees.sql]</h3>
+
+<pre><code>SELECT * FROM employee where 1=1 
+&lt;#if employee.age ?exists&gt;
+and age = '${employee.age}'
+&lt;/#if&gt;
+&lt;#if employee.name ?exists&gt;
+and name = '${employee.name}'
+&lt;/#if&gt;
+&lt;#if employee.empno ?exists&gt;
+and empno = '${employee.empno}'
+&lt;/#if&gt;
+</code></pre>
+
+<h3>
+<a name="%E6%B5%8B%E8%AF%95%E4%BB%A3%E7%A0%81" class="anchor" href="#%E6%B5%8B%E8%AF%95%E4%BB%A3%E7%A0%81"><span class="octicon octicon-link"></span></a>测试代码</h3>
+
+<pre><code>public class Client {
+public static void main(String args[]) {
+    BeanFactory factory = new ClassPathXmlApplicationContext(
+            "applicationContext.xml");
+
+    EmployeeDao employeeDao = (EmployeeDao) factory.getBean("employeeDao");
+    Employee employee = new Employee();
+    List&lt;Map&gt; list =  employeeDao.getAllEmployees(employee);
+    for(Map mp:list){
+        System.out.println(mp.get("id"));
+        System.out.println(mp.get("name"));
+        System.out.println(mp.get("empno"));
+        System.out.println(mp.get("age"));
+        System.out.println(mp.get("birthday"));
+        System.out.println(mp.get("salary"));
+    }
+}
+}
+</code></pre>
+
+<h2>
+<a name="%E6%8A%80%E6%9C%AF%E4%BA%A4%E6%B5%81" class="anchor" href="#%E6%8A%80%E6%9C%AF%E4%BA%A4%E6%B5%81"><span class="octicon octicon-link"></span></a>技术交流</h2>
+
+<ul>
+<li>作者：     张代浩</li>
+<li>技术论坛：<a href="http://www.jeecg.org">www.jeecg.org</a>
+</li>
+<li>邮箱：  <a href="mailto:zhangdaiscott@163.com">zhangdaiscott@163.com</a>
+</li>
+<li>交流群：325978980，143858350</li>
+</ul>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Minidao maintained by <a href="https://github.com/zhangdaiscott">zhangdaiscott</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
