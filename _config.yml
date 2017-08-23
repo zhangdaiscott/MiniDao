@@ -1,0 +1,8 @@
+title: Minidao
+description: J2EE 持久层轻量级解决方案
+google_analytics: 
+show_downloads: true
+theme: jekyll-theme-slate
+
+gems:
+  - jekyll-mentions
